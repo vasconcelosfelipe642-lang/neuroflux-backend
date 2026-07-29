@@ -1,7 +1,7 @@
 const express = require('express');
 console.log('Tarefas routes carregadas');
 const router = express.Router();
-const tarefaController = require('../controllers/tarefaController');
+const tarefaController = require('../controllers/TarefaController');
 const { verifyToken, isAdmin } = require('../middlewares/auth');
 const authorize = require('../middlewares/authorize');
 
