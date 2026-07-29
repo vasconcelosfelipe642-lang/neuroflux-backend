@@ -4,40 +4,22 @@ const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
 const process = require('process');
-const Sequelize = require('sequelize');
+const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
-
-let sequelize;
-
-if (env === 'production') {
-  // Configuração para o Render / Produção usando variáveis de ambiente
-  sequelize = new Sequelize(
-    process.env.DB_NAME,
-    process.env.DB_USER,
-    process.env.DB_PASSWORD,
-    {
-      host: process.env.DB_HOST,
-      dialect: 'mysql',
-      logging: false
-    }
-  );
-} else {
-  
-  const config = require(__dirname + '/../config/config.json')[env];
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
-}
-const basename =
-  path.basename(__filename);
-
-const env =
-  process.env.NODE_ENV ||
-  'development';
 
 const config = (() => {
   const hasEnvDbConfig = process.env.DB_HOST || process.env.DB_PORT || process.env.DB_USER || process.env.DB_PASSWORD || process.env.DB_NAME;
 
   if (hasEnvDbConfig) {
-    return require('../config/database');
+    return {
+      database: process.env.DB_NAME,
+      username: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT || 3306,
+      dialect: 'mysql',
+      logging: false
+    };
   }
 
   try {
@@ -53,11 +35,21 @@ const db = {};
 
 let sequelize;
 
-if (config.use_env_variable) {
+if (process.env.NODE_ENV === 'production' || process.env.DB_HOST) {
+  // Conexão direta via variáveis de ambiente para produção (Render)
   sequelize = new Sequelize(
-    process.env[
-      config.use_env_variable
-    ],
+    process.env.DB_NAME,
+    process.env.DB_USER,
+    process.env.DB_PASSWORD,
+    {
+      host: process.env.DB_HOST,
+      dialect: 'mysql',
+      logging: false
+    }
+  );
+} else if (config.use_env_variable) {
+  sequelize = new Sequelize(
+    process.env[config.use_env_variable],
     config
   );
 } else {
@@ -89,17 +81,11 @@ fs.readdirSync(__dirname)
     db[model.name] = model;
   });
 
-Object.keys(db).forEach(
-  modelName => {
-    if (
-      db[modelName].associate
-    ) {
-      db[modelName].associate(
-        db
-      );
-    }
+Object.keys(db).forEach(modelName => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
   }
-);
+});
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
