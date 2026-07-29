@@ -9,8 +9,6 @@ const enviarEmailRecuperacao = async (emailDestino, token) => {
     }
   });
 
-  // O link real que o aplicativo vai ler
-  // Mude a variável do link para apontar para o seu próprio servidor:
 const link = `neuroflux://recuperar-senha?token=${token}`;
 
   await transporter.sendMail({
@@ -19,7 +17,6 @@ const link = `neuroflux://recuperar-senha?token=${token}`;
     subject: "Recuperação de Senha - Neuroflux",
     text: `Você solicitou a recuperação de senha. Acesse o link: ${link} ou use o token: ${token}`,
     
-    // 2. Colocamos o link visível e o token em negrito para garantir que o usuário veja
     html: `
       <div style="font-family: Arial, sans-serif; font-size: 16px; color: #333;">
         <h2>Recuperação de Senha</h2>

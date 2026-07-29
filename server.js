@@ -21,15 +21,16 @@ const PORT = process.env.PORT || 3000;
 
 async function startServer() {
   try {
-    await db.sequelize.sync(); 
-    console.log('DB sincronizado e MySQL conectado!'); 
-
-     app.listen(PORT, () => {
-      console.log(`Servidor Neuroflux rodando em http://localhost:${PORT}`);
-    });
+    await db.sequelize.authenticate();
+    await db.sequelize.sync();
+    console.log('DB sincronizado e MySQL conectado!');
   } catch (err) {
-    console.error('Erro ao iniciar o servidor:', err); 
+    console.warn('MySQL indisponível ou credenciais inválidas. O servidor continuará em execução com o banco desconectado:', err.message);
   }
+
+  app.listen(PORT, () => {
+    console.log(`Servidor Neuroflux rodando em http://localhost:${PORT}`);
+  });
 }
 
 startServer(); 
