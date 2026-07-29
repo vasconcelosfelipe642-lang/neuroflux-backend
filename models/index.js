@@ -36,18 +36,25 @@ const db = {};
 let sequelize;
 
 if (process.env.NODE_ENV === 'production' || process.env.DB_HOST) {
-  // Conexão direta via variáveis de ambiente para produção (Render)
+  // Conexão direta via variáveis de ambiente para produção (Render + TiDB)
   sequelize = new Sequelize(
     process.env.DB_NAME,
     process.env.DB_USER,
     process.env.DB_PASSWORD,
     {
       host: process.env.DB_HOST,
+      port: process.env.DB_PORT || 4000, // Porta 4000 do TiDB Cloud
       dialect: 'mysql',
+      dialectOptions: {
+        ssl: {
+          rejectUnauthorized: true // Obrigatório para o TiDB Cloud
+        }
+      },
       logging: false
     }
   );
-} else if (config.use_env_variable) {
+}
+ else if (config.use_env_variable) {
   sequelize = new Sequelize(
     process.env[config.use_env_variable],
     config
